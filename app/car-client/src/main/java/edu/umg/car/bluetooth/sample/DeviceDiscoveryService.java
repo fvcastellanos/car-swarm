@@ -1,8 +1,14 @@
-package edu.umg.car.bluetooth;
+package edu.umg.car.bluetooth.sample;
 
-import javax.bluetooth.*;
+import javax.bluetooth.DeviceClass;
+import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.DiscoveryListener;
+import javax.bluetooth.LocalDevice;
+import javax.bluetooth.RemoteDevice;
+import javax.bluetooth.ServiceRecord;
 import java.io.IOException;
 import java.util.Vector;
+
 
 public class DeviceDiscoveryService {
 

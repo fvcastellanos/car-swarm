@@ -1,4 +1,4 @@
-package edu.umg.car.bluetooth;
+package edu.umg.car.bluetooth.sample;
 
 import javax.bluetooth.*;
 import java.io.IOException;

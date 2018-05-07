@@ -62,6 +62,10 @@ void stateChange()
   state = !state;
   digitalWrite(LED, state);
 }
+void _pong()
+{
+  Serial.println("ping...pong");
+}
 void setup()
 {
   pinMode(LED, OUTPUT);
@@ -103,6 +107,10 @@ void loop()
   else if (getstr == 'A')
   {
     stateChange();
+  }
+  else if (getstr == 'p')
+  {
+    _pong();
   }
 }
 
