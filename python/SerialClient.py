@@ -2,7 +2,9 @@
 import serial
 import time
 
-comPort = "COM4"
+# comPort = "COM4"
+
+comPort = "COM3"
 
 ser = serial.Serial(
     port=comPort,
@@ -24,7 +26,6 @@ while 1:
     time.sleep(0.3)
 
     response = ser.readline()
-    # response = ser.read(12)
 
     print("response: ", response.decode('utf-8'))
 
