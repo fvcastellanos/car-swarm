@@ -1,0 +1,8 @@
+Device 98D33490A262 found
+     name HC-05
+Device Inquiry completed!
+1 device(s) found
+search services on 98D33490A262 HC-05
+service Dev B found btspp://98D33490A262:1;authenticate=false;encrypt=false;master=false
+service search completed!
+BlueCove stack shutdown completed
