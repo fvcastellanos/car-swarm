@@ -22,11 +22,11 @@ int Echo = A4;
 int Trig = A5; 
 
 // Constants
-int minimalDistance = 20;
+int minimalDistance = 50;
 
 // Control variables
 boolean isMoving;
-int centerDistance;
+char currentDirection;
 
 int testDistance()   
 {
@@ -49,7 +49,8 @@ void mForward() {
   digitalWrite(in4,HIGH);
 
   isMoving = true;
-  Serial.println("go forward!");
+  currentDirection = 'f';
+  Serial.println("forward");
 }
 
 void mBack() {
@@ -61,7 +62,8 @@ void mBack() {
   digitalWrite(in4,LOW);
 
   isMoving = true;
-  Serial.println("go back!");
+  currentDirection = 'b';
+  Serial.println("back");
 }
 
 void mLeft() {
@@ -73,7 +75,8 @@ void mLeft() {
   digitalWrite(in4,LOW);
 
   isMoving = true;
-  Serial.println("go left!");
+  currentDirection = 'l';  
+  Serial.println("left");
 }
 
 void mRight() {
@@ -85,7 +88,8 @@ void mRight() {
   digitalWrite(in4,HIGH);
 
   isMoving = true;
-  Serial.println("go right!");
+  currentDirection = 'r';  
+  Serial.println("right");
 }
 
 void mStop() {
@@ -93,13 +97,20 @@ void mStop() {
   digitalWrite(ENB,LOW);
 
   isMoving = false;
-  Serial.println("Stop!");
+  currentDirection = 's';  
+  Serial.println("stop");
 }
 
-void getDistance() {
+void verifyPanicAttack(int minDist, boolean moving, char dir) {
   servo.write(90);
   delay(500);
-  centerDistance = testDistance();
+  int currentDist = testDistance();
+  
+  if ((currentDist <= minDist) && moving && (dir == 'f')) {
+    mStop();
+
+    Serial.println("panic");
+  }
 }
 
 void pong() {
@@ -128,20 +139,14 @@ void setup() {
   digitalWrite(ENA, LOW);
   digitalWrite(ENB, LOW);  
   isMoving = false;
+  currentDirection = 's';
 }
 
 void loop() {
 
-  // Calculating distances between nearest object
-  getDistance();
-  
-  if ((centerDistance <= minimalDistance) && isMoving) {
-    mStop();
-    Serial.print("CD:");
-    Serial.print(centerDistance);
-    Serial.println("|");
-  }
-  
+  // Calculating distances between nearest object when going forward
+  verifyPanicAttack(minimalDistance, isMoving, currentDirection);
+    
   // Reading incomming command
   command = Serial.read();
 
