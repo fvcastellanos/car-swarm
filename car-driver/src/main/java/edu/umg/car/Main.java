@@ -9,10 +9,11 @@ import org.springframework.context.annotation.ComponentScan;
 
 import java.util.Scanner;
 
-@ComponentScan
-@SpringBootApplication
-public class Main implements CommandLineRunner {
+//@ComponentScan
+//@SpringBootApplication
+public class Main /*implements CommandLineRunner*/ {
 
+/*
     @Autowired
     private CarService carService;
 
@@ -44,9 +45,10 @@ public class Main implements CommandLineRunner {
             ex.printStackTrace();
         }
     }
+*/
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(Main.class, args);
-    }
+//    public static void main(String[] args) throws Exception {
+//        SpringApplication.run(Main.class, args);
+//    }
 
 }

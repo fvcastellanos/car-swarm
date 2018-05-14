@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Consumer;
+
 @Service
 public class CarService {
 
@@ -34,8 +36,15 @@ public class CarService {
     @Autowired
     public CarService(ComService comService) {
         this.comService = comService;
+    }
 
+    public void init() {
         comService.initPort();
+    }
+
+    public void init(Consumer<String> sideEffect) {
+        init();
+        comService.setMessageReceivedSideEffect(sideEffect);
     }
 
     public void forward() {

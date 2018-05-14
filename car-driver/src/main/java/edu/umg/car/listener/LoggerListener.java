@@ -6,6 +6,10 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
+
+import static java.util.Objects.isNull;
+
 public class LoggerListener implements SerialPortDataListener {
 
     private static final Logger logger = LoggerFactory.getLogger(LoggerListener.class);
@@ -13,6 +17,8 @@ public class LoggerListener implements SerialPortDataListener {
     private SerialPort serialPort;
 
     private StringBuffer buffer;
+
+    private Consumer<String> messageAction;
 
     public LoggerListener(SerialPort serialPort) {
         this.serialPort = serialPort;
@@ -36,12 +42,21 @@ public class LoggerListener implements SerialPortDataListener {
         addToBuffer(newData);
     }
 
+    public void setMessageAction(Consumer<String> consumer) {
+        this.messageAction = consumer;
+    }
+
     private void addToBuffer(byte[] data) {
         buffer.append(new String(data));
 
         for (byte bt : data) {
             if (bt == '\n') {
                 logger.info("read data: {}", buffer.toString());
+
+                if (!isNull(messageAction)) {
+                    messageAction.accept(buffer.toString());
+                }
+
                 buffer = new StringBuffer();
             }
         }

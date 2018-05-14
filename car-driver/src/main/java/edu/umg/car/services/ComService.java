@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.Charset;
+import java.util.function.Consumer;
 
 @Service
 public class ComService {
@@ -18,7 +19,7 @@ public class ComService {
     @Value("${com.port}")
     private String comPort;
 
-    private SerialPortDataListener serialPortDataListener;
+    private LoggerListener serialPortDataListener;
     private SerialPort serialPort;
 
     public ComService() {
@@ -55,5 +56,9 @@ public class ComService {
         serialPort.writeBytes(bytes, bytes.length);
 
         logger.info("write succeeded");
+    }
+
+    public void setMessageReceivedSideEffect(Consumer<String> consumer) {
+        serialPortDataListener.setMessageAction(consumer);
     }
 }

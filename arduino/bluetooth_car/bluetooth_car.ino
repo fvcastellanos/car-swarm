@@ -7,14 +7,14 @@
 volatile int state = LOW;
 char command;
 
-// Order of IN pins were changed because motor wiring were crossed
+// Order of IN pins was changed because motor wiring were crossed
 int in1=8;
 int in2=9;
 int in3=6;
 int in4=7;
 int ENA=10;
 int ENB=5;
-int ABS=135;
+int ABS=130;
 
 // Define parameter for ultrasonic sensor
 Servo servo;
@@ -22,11 +22,11 @@ int Echo = A4;
 int Trig = A5; 
 
 // Constants
-int minimalDistance = 50;
+int minimalDistance = 30;
 
 // Control variables
-boolean isMoving;
-char currentDirection;
+boolean isMoving = false;
+boolean goingForward = false;
 
 int testDistance()   
 {
@@ -49,7 +49,7 @@ void mForward() {
   digitalWrite(in4,HIGH);
 
   isMoving = true;
-  currentDirection = 'f';
+  goingForward = true;
   Serial.println("forward");
 }
 
@@ -62,33 +62,37 @@ void mBack() {
   digitalWrite(in4,LOW);
 
   isMoving = true;
-  currentDirection = 'b';
+  goingForward = false;
   Serial.println("back");
 }
 
 void mLeft() {
-  analogWrite(ENA,ABS);
-  analogWrite(ENB,ABS);
-  digitalWrite(in1,LOW);
-  digitalWrite(in2,HIGH);
-  digitalWrite(in3,HIGH);
-  digitalWrite(in4,LOW);
+  digitalWrite(ENA,HIGH);
+  digitalWrite(ENB,HIGH);
+//  analogWrite(ENA, ABS);
+//  analogWrite(ENB, ABS);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
 
   isMoving = true;
-  currentDirection = 'l';  
+  goingForward = false;
   Serial.println("left");
 }
 
 void mRight() {
-  analogWrite(ENA,ABS);
-  analogWrite(ENB,ABS);
+  digitalWrite(ENA,HIGH);
+  digitalWrite(ENB,HIGH);
+//  analogWrite(ENA,ABS);
+//  analogWrite(ENB,ABS);
   digitalWrite(in1,HIGH);
   digitalWrite(in2,LOW);
   digitalWrite(in3,LOW);
   digitalWrite(in4,HIGH);
 
   isMoving = true;
-  currentDirection = 'r';  
+  goingForward = false;
   Serial.println("right");
 }
 
@@ -97,19 +101,19 @@ void mStop() {
   digitalWrite(ENB,LOW);
 
   isMoving = false;
-  currentDirection = 's';  
+  goingForward = false;
   Serial.println("stop");
 }
 
-void verifyPanicAttack(int minDist, boolean moving, char dir) {
+void verifyPanicAttack(int minDist, boolean moving, boolean forward) {
   servo.write(90);
-  delay(500);
+  delay(200);
   int currentDist = testDistance();
   
-  if ((currentDist <= minDist) && moving && (dir == 'f')) {
+  if ((currentDist <= minDist) && moving && forward) {
     mStop();
 
-    Serial.println("panic");
+    Serial.println("#");
   }
 }
 
@@ -139,13 +143,13 @@ void setup() {
   digitalWrite(ENA, LOW);
   digitalWrite(ENB, LOW);  
   isMoving = false;
-  currentDirection = 's';
+  goingForward = false;
 }
 
 void loop() {
 
   // Calculating distances between nearest object when going forward
-  verifyPanicAttack(minimalDistance, isMoving, currentDirection);
+  verifyPanicAttack(minimalDistance, isMoving, goingForward);
     
   // Reading incomming command
   command = Serial.read();
