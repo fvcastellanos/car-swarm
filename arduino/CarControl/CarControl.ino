@@ -22,11 +22,24 @@ int Echo = A4;
 int Trig = A5; 
 
 // Constants
-int minimalDistance = 30;
+int minimalDistance = 50;
+int TURN_MS_DELAY = 555;
+
+float meanVelocity = 0.9337; // mts/s
 
 // Control variables
 boolean isMoving = false;
 boolean goingForward = false;
+
+unsigned long timer;
+
+int calculateDelay(float velocity, float distance) {
+  if (distance > 0) {
+    return (int)(velocity / distance);
+  }
+
+  return 0;
+}
 
 int testDistance()   
 {
@@ -50,7 +63,6 @@ void mForward() {
 
   isMoving = true;
   goingForward = true;
-  Serial.println("forward");
 }
 
 void mBack() {
@@ -63,7 +75,6 @@ void mBack() {
 
   isMoving = true;
   goingForward = false;
-  Serial.println("back");
 }
 
 void mLeft() {
@@ -76,7 +87,6 @@ void mLeft() {
 
   isMoving = true;
   goingForward = false;
-  Serial.println("left");
 }
 
 void mRight() {
@@ -89,7 +99,6 @@ void mRight() {
 
   isMoving = true;
   goingForward = false;
-  Serial.println("right");
 }
 
 void mStop() {
@@ -98,7 +107,67 @@ void mStop() {
 
   isMoving = false;
   goingForward = false;
-  Serial.println("stop");
+}
+
+int convertDistanceToTimeMillis(float distance) {
+  //  t = d / v
+  float seconds = distance / meanVelocity; // time in secons
+  return seconds * 1000; // convert seconds to milliseconds  
+}
+
+boolean nonBlockingDelay(int timeInMillis) {
+
+  if (millis() - timer >= timeInMillis) {
+    return true;
+  }  
+
+  return false;
+}
+
+void turnDirection(char dir) {
+
+  if (!isMoving) {
+
+    timer = millis();
+
+    switch(dir) {
+      case 'l':
+        mLeft();
+      break;
+      case 'r':
+        mRight();
+      break;
+    }    
+  }
+
+  if (nonBlockingDelay(TURN_MS_DELAY)) {
+    mStop();
+    Serial.println('t');
+  }
+}
+
+void moveStraight(char dir, float distance) {
+
+  if (!isMoving) {
+
+    timer = millis();
+    switch(dir) {
+      case 'f':
+        mForward();
+      break;
+      case 'b':
+        mBack();
+      break;
+    }    
+  }
+
+  int waitMillis = convertDistanceToTimeMillis(distance);
+
+  if (nonBlockingDelay(waitMillis)) {
+    mStop();
+    Serial.println('t');
+  }
+  
 }
 
 void verifyFrontObstacles(int minDist, boolean moving, boolean forward) {
@@ -143,66 +212,42 @@ void setup() {
   digitalWrite(ENB, LOW);  
   isMoving = false;
   goingForward = false;
+
+  // Setting timer to zero
+  timer = 0;
 }
 
 void loop() {
 
-  // Calculating distances between nearest object when going forward
-  verifyFrontObstacles(minimalDistance, isMoving, goingForward);
+  if (isMoving) {
+    // Calculating distances between nearest object when going forward
+    verifyFrontObstacles(minimalDistance, isMoving, goingForward);  
+  }
     
   // Reading incomming command
-  command = Serial.read();
+  if (!isMoving) {
+    command = Serial.read();    
+  }
 
   switch(command) {
     case 'f':
-      mForward();
+      moveStraight('f', 1); // move 1 mt. forward
     break;
     case 'b':
-      mBack();
+      moveStraight('b', 1); // move 1 mt. backwards
     break;
     case 'l':
-      mLeft();
+      turnDirection('l');
     break;
     case 'r':
-      mRight();
+      turnDirection('r');
     break;
     case 's':
       mStop();
     break;
     case 'p':
       pong();
-    break;
-    
-    case '1':
-      mForward();
-      delay(1000);
-      mStop();
-    break;
-
-    case '2':
-      mForward();
-      delay(2000);
-      mStop();
-    break;
-
-    case '3':
-      mForward();
-      delay(3000);
-      mStop();
-    break;
-
-    case '4':
-      mForward();
-      delay(4000);
-      mStop();
-    break;
-
-    case '5':
-      mForward();
-      delay(5000);
-      mStop();
-    break;
-  
+    break;    
   }  
 }
 

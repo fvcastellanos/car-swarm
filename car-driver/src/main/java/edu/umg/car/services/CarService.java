@@ -88,4 +88,10 @@ public class CarService {
         logger.info("closing communication");
         comService.closePort();
     }
+
+    public void sendCustomMessage(String message) {
+
+        logger.info("sending message: {} to car", message);
+        comService.write(message);
+    }
 }

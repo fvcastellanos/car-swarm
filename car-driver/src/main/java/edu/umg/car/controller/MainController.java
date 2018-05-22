@@ -1,12 +1,19 @@
 package edu.umg.car.controller;
 
+import com.google.common.collect.Queues;
 import edu.umg.car.services.CarService;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Queue;
+import java.util.Stack;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class MainController {
@@ -18,12 +25,19 @@ public class MainController {
 
     private StringBuffer buffer;
 
+    private Queue<String> commandQueue;
+
     public MainController() {
         buffer = new StringBuffer();
+
+        commandQueue = Queues.newArrayDeque();
     }
 
     @FXML
     private TextArea edStatus;
+
+    @FXML
+    private TextField edMessage;
 
     @FXML
     public void initCom() {
@@ -96,13 +110,41 @@ public class MainController {
     }
 
     @FXML
+    public void clearText() {
+        clearMessage();
+    }
+
+    @FXML
+    public void sendCustomMessage() {
+
+        String message = edMessage.getText();
+        if (!isEmpty(message)) {
+            carService.sendCustomMessage(message);
+            addMessage("message sent: " + message);
+        }
+    }
+
+    @FXML
     public void exit() {
         System.exit(0);
+    }
+
+    @FXML
+    public void testRoute() {
+        commandQueue.add("f");
+        commandQueue.add("l");
+        commandQueue.add("f");
+        
     }
 
     private void addMessage(String message) {
         buffer.append("\n");
         buffer.append(message);
         edStatus.setText(buffer.toString());
+    }
+
+    private void clearMessage() {
+        buffer = new StringBuffer();
+        addMessage("");
     }
 }
